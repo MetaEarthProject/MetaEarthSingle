@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
-import 'database_helper.dart';
+import 'country_controller.dart';
 import 'country_model.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  print('Initializing app');
   runApp(const MyApp());
 }
 
@@ -17,7 +19,8 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Choose your country'),
         ),
-        body: const CountryDropdown(),
+        body:
+            const CountryDropdown(), // Assuming you've renamed it to CountryDropdown
       ),
     );
   }
@@ -32,39 +35,28 @@ class CountryDropdown extends StatefulWidget {
 
 class _CountryDropdownState extends State<CountryDropdown> {
   String selectedCountry = 'US'; // Default country
-  late Future<List<Country>> countriesFuture; // Future to hold country objects
-  late Map<String, String>
-      selectedCountryDetails; // Map to hold country details
+  late Future<List<Country>> countriesFuture;
+  late Map<String, String> selectedCountryDetails;
 
-  late DatabaseHelper databaseHelper;
+  final CountryController _countryController = CountryController();
 
   @override
   void initState() {
     super.initState();
-    // Initialize the database when the widget is created
-    databaseHelper = DatabaseHelper();
-    countriesFuture = initializeDatabase();
-    selectedCountryDetails = {}; // Initialize an empty map
+    countriesFuture = _countryController.getCountries();
+    selectedCountryDetails = {};
     updateCountryDetails(selectedCountry);
   }
 
-  Future<List<Country>> initializeDatabase() async {
-    // Fetch countries from the database
-    List<Country> countries = await databaseHelper.getCountries();
-    return countries;
-  }
-
   Future<void> updateCountryDetails(String countryCode) async {
+    print('Updating country details for $countryCode');
+
     Country? selectedCountry =
-        await databaseHelper.getCountryDetails(countryCode);
+        await _countryController.getCountryDetails(countryCode);
 
     if (selectedCountry != null) {
-      // When you call setState, Flutter schedules a rebuild of
-      // the widget tree, and the build method is called again
-      // to reflect the updated state.
       setState(() {
         selectedCountryDetails = {
-          'Name': selectedCountry.name,
           'Population': selectedCountry.population.toString(),
           'GDP': selectedCountry.gdp.toString(),
           'Government': selectedCountry.governmentSystem,
@@ -96,6 +88,7 @@ class _CountryDropdownState extends State<CountryDropdown> {
               child: Text('No countries available.'),
             );
           }
+          print('Countries: $countries');
 
           List<DropdownMenuItem<String>> countryList = countries
               .map((country) => DropdownMenuItem<String>(
@@ -115,7 +108,6 @@ class _CountryDropdownState extends State<CountryDropdown> {
                     ),
                   ))
               .toList();
-
           return Column(
             children: [
               const SizedBox(height: 20),

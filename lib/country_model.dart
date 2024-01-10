@@ -3,7 +3,7 @@ class Country {
   String code;
   String name;
   int population;
-  double gdp;
+  int gdp;
   String governmentSystem;
 
   Country({
@@ -27,6 +27,7 @@ class Country {
   }
 
   factory Country.fromMap(Map<String, dynamic> map) {
+    print('Creating Country from map: $map');
     return Country(
       id: map['id'],
       code: map['code'],
