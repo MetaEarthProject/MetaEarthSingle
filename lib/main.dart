@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 import 'country_controller.dart';
 import 'country_model.dart';
+import 'package:intl/intl.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   print('Initializing app');
+  final applicationDocumentsDirectory =
+      await path_provider.getApplicationDocumentsDirectory();
+  Hive.init(applicationDocumentsDirectory.path);
+  Hive.registerAdapter(CountryAdapter());
+  await Hive.openBox<Country>('countries');
+
+  // Insert sample data
+  final countryController = CountryController();
+  await countryController.insertSampleData();
   runApp(const MyApp());
 }
 
@@ -35,15 +47,12 @@ class CountryDropdown extends StatefulWidget {
 
 class _CountryDropdownState extends State<CountryDropdown> {
   String selectedCountry = 'US'; // Default country
-  late Future<List<Country>> countriesFuture;
-  late Map<String, String> selectedCountryDetails;
 
-  final CountryController _countryController = CountryController();
+  late Map<String, String> selectedCountryDetails;
 
   @override
   void initState() {
     super.initState();
-    countriesFuture = _countryController.getCountries();
     selectedCountryDetails = {};
     updateCountryDetails(selectedCountry);
   }
@@ -51,8 +60,7 @@ class _CountryDropdownState extends State<CountryDropdown> {
   Future<void> updateCountryDetails(String countryCode) async {
     print('Updating country details for $countryCode');
 
-    Country? selectedCountry =
-        await _countryController.getCountryDetails(countryCode);
+    Country? selectedCountry = Hive.box<Country>('countries').get(countryCode);
 
     if (selectedCountry != null) {
       setState(() {
@@ -77,62 +85,62 @@ class _CountryDropdownState extends State<CountryDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: countriesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          List<Country>? countries = snapshot.data;
+    final countryBox = Hive.box<Country>('countries');
+    final countries = countryBox.values.toList();
 
-          if (countries == null || countries.isEmpty) {
-            return const Center(
-              child: Text('No countries available.'),
-            );
-          }
-          print('Countries: $countries');
+    // Sort the countries by name in ascending order
+    // countries.sort((a, b) => a.name.compareTo(b.name));
 
-          List<DropdownMenuItem<String>> countryList = countries
-              .map((country) => DropdownMenuItem<String>(
-                    value: country.code,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CountryFlag.fromCountryCode(
-                          country.code,
-                          height: 30,
-                          width: 40,
-                          borderRadius: 8,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(country.name),
-                      ],
-                    ),
-                  ))
-              .toList();
-          return Column(
-            children: [
-              const SizedBox(height: 20),
-              DropdownButton<String>(
-                value: selectedCountry,
-                onChanged: onCountrySelected,
-                isExpanded: true,
-                items: countryList,
+    if (countries.isEmpty) {
+      return const Center(
+        child: Text('No countries available.'),
+      );
+    }
+    print('Countries: $countries');
+
+    List<DropdownMenuItem<String>> countryList = countries
+        .map((country) => DropdownMenuItem<String>(
+              value: country.code,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CountryFlag.fromCountryCode(
+                    country.code,
+                    height: 30,
+                    width: 40,
+                    borderRadius: 8,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(country.name),
+                ],
               ),
-              const SizedBox(height: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: selectedCountryDetails.entries
-                    .map((entry) => Text('${entry.key}: ${entry.value}\n'))
-                    .toList(),
-              ),
-            ],
-          );
-        } else {
-          // Show loading indicator while initializing
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-      },
+            ))
+        .toList();
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        DropdownButton<String>(
+          value: selectedCountry,
+          onChanged: onCountrySelected,
+          isExpanded: true,
+          items: countryList,
+        ),
+        const SizedBox(height: 20),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: selectedCountryDetails.entries
+              .map((entry) => Text(
+                  '${entry.key}: ${entry.key == 'GDP' ? '\$' : ''}${entry.key == 'Population' || entry.key == 'GDP' ? NumberFormat.decimalPattern().format(int.parse(entry.value)) : entry.value}\n'))
+              .toList(),
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () {
+            print('Selected country: $selectedCountry');
+          },
+          child: const Text('Select this country'),
+        ),
+      ],
     );
   }
 }

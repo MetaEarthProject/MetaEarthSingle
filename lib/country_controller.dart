@@ -1,6 +1,6 @@
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 import 'country_model.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 class CountryController {
   static final CountryController _instance = CountryController._internal();
@@ -9,33 +9,17 @@ class CountryController {
 
   CountryController._internal();
 
-  Future<Database> initDatabase() async {
-    String path = join(await getDatabasesPath(), 'countries_database.db');
-
-    print('Database path: $path');
-
-    return await openDatabase(
-      path,
-      version: 4,
-      onCreate: (Database db, int version) async {
-        print('Creating database and initializing tables.');
-
-        await db.execute('''
-          CREATE TABLE IF NOT EXISTS countries (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            code TEXT,
-            name TEXT,
-            population INTEGER,
-            gdp INTEGER,
-            government_system TEXT
-          )
-        ''');
-        await insertSampleData(db);
-      },
-    );
+  Future<void> initDatabase() async {
+    final applicationDocumentsDirectory =
+        await path_provider.getApplicationDocumentsDirectory();
+    Hive.init(applicationDocumentsDirectory.path);
+    Hive.registerAdapter(CountryAdapter());
+    await Hive.openBox<Country>('countries');
+    await insertSampleData();
   }
 
-  Future<void> insertSampleData(Database db) async {
+  Future<void> insertSampleData() async {
+    final countryBox = Hive.box<Country>('countries');
     List<Country> countryList = [
       Country(
         code: 'US',
@@ -117,52 +101,27 @@ class CountryController {
     ];
 
     for (Country country in countryList) {
-      await db.insert(
-        'countries',
-        country.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await countryBox.put(country.code, country);
     }
   }
 
-  Future<void> insertCountry(Database db, Country country) async {
-    await db.insert('countries', country.toMap());
+  Future<void> insertCountry(Country country) async {
+    final countryBox = Hive.box<Country>('countries');
+    await countryBox.put(country.code, country);
   }
 
   Future<Country?> getCountryDetails(String countryCode) async {
-    print('Querying country details for $countryCode');
-    Database db = await initDatabase();
-    List<Map<String, dynamic>> countryMapList = await db.query(
-      'countries',
-      where: 'code = ?',
-      whereArgs: [countryCode],
-    );
-
-    if (countryMapList.isNotEmpty) {
-      return Country.fromMap(countryMapList.first);
-    }
-
-    return null;
+    final countryBox = Hive.box<Country>('countries');
+    return countryBox.get(countryCode);
   }
 
   Future<List<Country>> getCountries() async {
-    print('Querying all countries');
-    Database db = await initDatabase();
-    List<Map<String, dynamic>> countryMaps = await db.query('countries');
-
-    return countryMaps.map((map) => Country.fromMap(map)).toList();
+    final countryBox = Hive.box<Country>('countries');
+    return countryBox.values.toList();
   }
 
   Future<void> resetDatabase() async {
-    try {
-      Database db = await initDatabase();
-      print('Before deleting data');
-      await db.delete('countries');
-      print('After deleting data');
-      await db.execute('VACUUM');
-      print('Database reset complete in controller part.');
-    } catch (e) {
-      print('Error during database reset: $e');
-    }
+    final countryBox = Hive.box<Country>('countries');
+    await countryBox.clear();
   }
 }

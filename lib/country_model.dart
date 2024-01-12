@@ -1,11 +1,27 @@
-class Country {
+import 'package:hive/hive.dart';
+part 'country_model.g.dart'; // Name of the TypeAdapter that will be generated
+
+@HiveType(typeId: 0) // Unique identifier for this type
+class Country extends HiveObject {
+  @HiveField(0)
   int? id;
+
+  @HiveField(1)
   String code;
+
+  @HiveField(2)
   String name;
+
+  @HiveField(3)
   int population;
+
+  @HiveField(4)
   int gdp;
+
+  @HiveField(5)
   String governmentSystem;
 
+  // Additional
   Country({
     this.id,
     required this.code,
@@ -14,27 +30,4 @@ class Country {
     required this.gdp,
     required this.governmentSystem,
   });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'code': code,
-      'name': name,
-      'population': population,
-      'gdp': gdp,
-      'government_system': governmentSystem,
-    };
-  }
-
-  factory Country.fromMap(Map<String, dynamic> map) {
-    print('Creating Country from map: $map');
-    return Country(
-      id: map['id'],
-      code: map['code'],
-      name: map['name'],
-      population: map['population'],
-      gdp: map['gdp'],
-      governmentSystem: map['government_system'],
-    );
-  }
 }
