@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'country_controller.dart';
 import 'country_model.dart';
+import 'user_model.dart';
 import 'package:intl/intl.dart';
 
 void main() async {
@@ -13,7 +14,9 @@ void main() async {
       await path_provider.getApplicationDocumentsDirectory();
   Hive.init(applicationDocumentsDirectory.path);
   Hive.registerAdapter(CountryAdapter());
+  Hive.registerAdapter(UserAdapter());
   await Hive.openBox<Country>('countries');
+  await Hive.openBox<User>('users');
 
   // Insert sample data
   final countryController = CountryController();
@@ -135,8 +138,15 @@ class _CountryDropdownState extends State<CountryDropdown> {
         ),
         const SizedBox(height: 20),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             print('Selected country: $selectedCountry');
+
+            final userBox = Hive.box<User>('users');
+            final user = User(
+                id: 1, countryCode: selectedCountry); // Assuming the id is 1
+            await userBox.put(user.id, user);
+            print('user.id: ${user.id}');
+            print('user.countryCode: ${user.countryCode}');
           },
           child: const Text('Select this country'),
         ),
