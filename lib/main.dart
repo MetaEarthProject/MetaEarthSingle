@@ -6,6 +6,7 @@ import 'country_controller.dart';
 import 'country_model.dart';
 import 'user_model.dart';
 import 'package:intl/intl.dart';
+import 'package:meta_earth_single_mode/world_map_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -147,6 +148,17 @@ class _CountryDropdownState extends State<CountryDropdown> {
             await userBox.put(user.id, user);
             print('user.id: ${user.id}');
             print('user.countryCode: ${user.countryCode}');
+
+            // Use a separate BuildContext that is still valid after the async gap
+            WidgetsBinding.instance!.addPostFrameCallback((_) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      WorldMapPage(selectedCountry: selectedCountry),
+                ),
+              );
+            });
           },
           child: const Text('Select this country'),
         ),
