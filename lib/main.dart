@@ -150,7 +150,7 @@ class _CountryDropdownState extends State<CountryDropdown> {
             print('user.countryCode: ${user.countryCode}');
 
             // Use a separate BuildContext that is still valid after the async gap
-            WidgetsBinding.instance!.addPostFrameCallback((_) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.push(
                 context,
                 MaterialPageRoute(

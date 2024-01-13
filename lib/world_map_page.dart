@@ -27,6 +27,52 @@ class WorldMapPage extends StatelessWidget {
           },
         ),
       ),
+      bottomNavigationBar: Container(
+        height: 100.0, // Specify your desired height
+        child: BottomAppBar(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.account_balance_outlined),
+                    iconSize: 40.0,
+                    onPressed: () {},
+                  ),
+                  Text('POLITICS'),
+                ],
+              ),
+              VerticalDivider(color: Colors.black, thickness: 1.0),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.paid_outlined),
+                    iconSize: 40.0,
+                    onPressed: () {},
+                  ),
+                  Text('ECONOMY'),
+                ],
+              ),
+              VerticalDivider(color: Colors.black, thickness: 1.0),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  IconButton(
+                    icon: Image.asset('assets/tank400.png',
+                        width: 40.0, height: 40.0),
+                    iconSize: 40.0,
+                    onPressed: () {},
+                  ),
+                  Text('MILLITARY'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
