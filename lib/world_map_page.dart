@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:countries_world_map/countries_world_map.dart';
+import 'package:meta_earth_single_mode/bottom_navigation_bar.dart';
 import 'package:meta_earth_single_mode/country_controller.dart';
 import 'package:meta_earth_single_mode/country_model.dart';
 import 'package:meta_earth_single_mode/data/maps/world_map.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:meta_earth_single_mode/overview.dart';
 
 class WorldMapPage extends StatefulWidget {
   final String selectedCountry;
@@ -16,13 +15,15 @@ class WorldMapPage extends StatefulWidget {
 }
 
 class _WorldMapPageState extends State<WorldMapPage> {
+  final countryController = CountryController();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Country>>(
       future: CountryController().getCountries(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
@@ -60,71 +61,8 @@ class _WorldMapPageState extends State<WorldMapPage> {
                 ),
               ],
             ),
-            bottomNavigationBar: SizedBox(
-              height: 100.0,
-              child: BottomAppBar(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.globe),
-                          iconSize: 30.0,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => OverviewPage(
-                                      selectedCountry: widget.selectedCountry)),
-                            );
-                          },
-                        ),
-                        const Text('OVERVIEW'),
-                      ],
-                    ),
-                    const VerticalDivider(color: Colors.black, thickness: 1.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        IconButton(
-                          icon: const Icon(Icons.account_balance_outlined),
-                          iconSize: 30.0,
-                          onPressed: () {},
-                        ),
-                        const Text('POLITICS'),
-                      ],
-                    ),
-                    const VerticalDivider(color: Colors.black, thickness: 1.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        IconButton(
-                          icon: const Icon(Icons.paid_outlined),
-                          iconSize: 30.0,
-                          onPressed: () {},
-                        ),
-                        const Text('ECONOMY'),
-                      ],
-                    ),
-                    const VerticalDivider(color: Colors.black, thickness: 1.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        IconButton(
-                          icon: Image.asset('assets/tank400.png',
-                              width: 30.0, height: 30.0),
-                          iconSize: 30.0,
-                          onPressed: () {},
-                        ),
-                        const Text('MILLITARY'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            bottomNavigationBar:
+                BottomNavBar(selectedCountry: widget.selectedCountry),
           );
         }
       },
