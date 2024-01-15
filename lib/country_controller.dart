@@ -1,6 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:meta_earth_single_mode/model/user_model.dart';
-import 'package:path_provider/path_provider.dart' as path_provider;
 import '/model/country_model.dart';
 import '/model/defense.dart';
 
@@ -12,131 +10,8 @@ class CountryController {
   CountryController._internal();
 
   Future<void> initDatabase() async {
-    // final applicationDocumentsDirectory =
-    //     await path_provider.getApplicationDocumentsDirectory();
-    // Hive.init(applicationDocumentsDirectory.path);
     await insertSampleData();
-
-    await Hive.openBox<Military>('military');
-
-    final militaryBox = Hive.box<Military>('military');
-    await militaryBox.put(
-        'US',
-        Military(
-          id: 1,
-          countryCode: 'US',
-          infantry: 541291,
-          tank: 5500,
-          airforce: 13000,
-        ));
-
-    await militaryBox.put(
-        'CN',
-        Military(
-          id: 2,
-          countryCode: 'CN',
-          infantry: 2100000,
-          tank: 3500,
-          airforce: 123000,
-        ));
-    // Japan
-    await militaryBox.put(
-        'JP',
-        Military(
-          id: 3,
-          countryCode: 'JP',
-          infantry: 225000,
-          tank: 700,
-          airforce: 1500,
-        ));
-
-// Germany
-    await militaryBox.put(
-        'DE',
-        Military(
-          id: 4,
-          countryCode: 'DE',
-          infantry: 183000,
-          tank: 400,
-          airforce: 700,
-        ));
-
-// France
-    await militaryBox.put(
-        'FR',
-        Military(
-          id: 5,
-          countryCode: 'FR',
-          infantry: 205000,
-          tank: 400,
-          airforce: 1100,
-        ));
-
-// India
-    await militaryBox.put(
-        'IN',
-        Military(
-          id: 6,
-          countryCode: 'IN',
-          infantry: 1392000,
-          tank: 4500,
-          airforce: 2100,
-        ));
-
-// United Kingdom
-    await militaryBox.put(
-        'GB',
-        Military(
-          id: 7,
-          countryCode: 'GB',
-          infantry: 150000,
-          tank: 200,
-          airforce: 900,
-        ));
-
-// Italy
-    await militaryBox.put(
-        'IT',
-        Military(
-          id: 8,
-          countryCode: 'IT',
-          infantry: 180000,
-          tank: 200,
-          airforce: 800,
-        ));
-
-// Canada
-    await militaryBox.put(
-        'CA',
-        Military(
-          id: 9,
-          countryCode: 'CA',
-          infantry: 65000,
-          tank: 80,
-          airforce: 400,
-        ));
-
-// Brazil
-    await militaryBox.put(
-        'BR',
-        Military(
-          id: 10,
-          countryCode: 'BR',
-          infantry: 334000,
-          tank: 400,
-          airforce: 700,
-        ));
-
-// South Korea
-    await militaryBox.put(
-        'KR',
-        Military(
-          id: 11,
-          countryCode: 'KR',
-          infantry: 465000,
-          tank: 2300,
-          airforce: 1400,
-        ));
+    await insertMilitaryData();
   }
 
   Future<void> insertSampleData() async {
@@ -224,6 +99,95 @@ class CountryController {
 
     for (Country country in countryList) {
       await countryBox.put(country.code, country);
+    }
+  }
+
+  Future<void> insertMilitaryData() async {
+    List<Military> militaryList = [
+      Military(
+        id: 1,
+        countryCode: 'US',
+        infantry: 541291,
+        tank: 5500,
+        airforce: 13000,
+      ),
+      Military(
+        id: 2,
+        countryCode: 'CN',
+        infantry: 2100000,
+        tank: 3500,
+        airforce: 123000,
+      ),
+      Military(
+        id: 3,
+        countryCode: 'JP',
+        infantry: 225000,
+        tank: 700,
+        airforce: 1500,
+      ),
+      Military(
+        id: 4,
+        countryCode: 'DE',
+        infantry: 183000,
+        tank: 400,
+        airforce: 700,
+      ),
+      Military(
+        id: 5,
+        countryCode: 'FR',
+        infantry: 205000,
+        tank: 400,
+        airforce: 1100,
+      ),
+      Military(
+        id: 6,
+        countryCode: 'IN',
+        infantry: 1392000,
+        tank: 4500,
+        airforce: 2100,
+      ),
+      Military(
+        id: 7,
+        countryCode: 'GB',
+        infantry: 150000,
+        tank: 200,
+        airforce: 900,
+      ),
+      Military(
+        id: 8,
+        countryCode: 'IT',
+        infantry: 180000,
+        tank: 200,
+        airforce: 800,
+      ),
+      Military(
+        id: 9,
+        countryCode: 'CA',
+        infantry: 65000,
+        tank: 80,
+        airforce: 400,
+      ),
+      Military(
+        id: 10,
+        countryCode: 'BR',
+        infantry: 334000,
+        tank: 400,
+        airforce: 700,
+      ),
+      Military(
+        id: 11,
+        countryCode: 'KR',
+        infantry: 465000,
+        tank: 2300,
+        airforce: 1400,
+      ),
+    ];
+
+    await Hive.openBox<Military>('military');
+    final militaryBox = Hive.box<Military>('military');
+
+    for (Military military in militaryList) {
+      await militaryBox.put(military.countryCode, military);
     }
   }
 
