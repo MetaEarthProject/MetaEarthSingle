@@ -12,17 +12,33 @@ import 'package:meta_earth_single_mode/world_map_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   print('Initializing app');
-  final applicationDocumentsDirectory =
-      await path_provider.getApplicationDocumentsDirectory();
-  Hive.init(applicationDocumentsDirectory.path);
 
-  // Insert sample data
-  final countryController = CountryController();
-  await countryController.initDatabase();
-
-  Hive.registerAdapter(UserAdapter());
-  await Hive.openBox<User>('users');
+  await HiveController.initHive();
   runApp(const MyApp());
+}
+
+class HiveController {
+  static Future<void> initHive() async {
+    final applicationDocumentsDirectory =
+        await path_provider.getApplicationDocumentsDirectory();
+    Hive.init(applicationDocumentsDirectory.path);
+
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(CountryAdapter());
+    }
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(UserAdapter());
+    }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(MilitaryAdapter());
+    }
+
+    // Insert sample data
+    final countryController = CountryController();
+    await countryController.initDatabase();
+
+    await Hive.openBox<User>('users');
+  }
 }
 
 class MyApp extends StatelessWidget {

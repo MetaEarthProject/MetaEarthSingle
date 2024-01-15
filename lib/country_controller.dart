@@ -12,14 +12,11 @@ class CountryController {
   CountryController._internal();
 
   Future<void> initDatabase() async {
-    final applicationDocumentsDirectory =
-        await path_provider.getApplicationDocumentsDirectory();
-    Hive.init(applicationDocumentsDirectory.path);
-    Hive.registerAdapter(CountryAdapter());
-    await Hive.openBox<Country>('countries');
+    // final applicationDocumentsDirectory =
+    //     await path_provider.getApplicationDocumentsDirectory();
+    // Hive.init(applicationDocumentsDirectory.path);
     await insertSampleData();
 
-    Hive.registerAdapter(MilitaryAdapter());
     await Hive.openBox<Military>('military');
 
     final militaryBox = Hive.box<Military>('military');
@@ -143,6 +140,7 @@ class CountryController {
   }
 
   Future<void> insertSampleData() async {
+    await Hive.openBox<Country>('countries');
     final countryBox = Hive.box<Country>('countries');
     List<Country> countryList = [
       Country(
@@ -242,10 +240,5 @@ class CountryController {
   Future<List<Country>> getCountries() async {
     final countryBox = Hive.box<Country>('countries');
     return countryBox.values.toList();
-  }
-
-  Future<void> resetDatabase() async {
-    final countryBox = Hive.box<Country>('countries');
-    await countryBox.clear();
   }
 }

@@ -4,6 +4,7 @@ import 'package:meta_earth_single_mode/bottom_navigation_bar.dart';
 import 'package:meta_earth_single_mode/country_controller.dart';
 import 'package:meta_earth_single_mode/model/country_model.dart';
 import 'package:meta_earth_single_mode/data/maps/world_map.dart';
+import 'package:meta_earth_single_mode/reset_controller.dart';
 
 class WorldMapPage extends StatefulWidget {
   final String selectedCountry;
@@ -36,6 +37,12 @@ class _WorldMapPageState extends State<WorldMapPage> {
           return Scaffold(
             appBar: AppBar(
               title: const Text('World Map'),
+              actions: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.settings_backup_restore),
+                  onPressed: () => ResetController().showResetDialog(context),
+                ),
+              ],
             ),
             body: Stack(
               children: [
