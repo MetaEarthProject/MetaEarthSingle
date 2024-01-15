@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
-import 'country_controller.dart';
-import 'country_model.dart';
-import 'user_model.dart';
 import 'package:intl/intl.dart';
+import 'package:meta_earth_single_mode/model/defense.dart';
+import '/model/country_model.dart';
+import '/model/user_model.dart';
+import 'country_controller.dart';
 import 'package:meta_earth_single_mode/world_map_page.dart';
 
 void main() async {
@@ -14,19 +15,18 @@ void main() async {
   final applicationDocumentsDirectory =
       await path_provider.getApplicationDocumentsDirectory();
   Hive.init(applicationDocumentsDirectory.path);
-  Hive.registerAdapter(CountryAdapter());
-  Hive.registerAdapter(UserAdapter());
-  await Hive.openBox<Country>('countries');
-  await Hive.openBox<User>('users');
 
   // Insert sample data
   final countryController = CountryController();
-  await countryController.insertSampleData();
+  await countryController.initDatabase();
+
+  Hive.registerAdapter(UserAdapter());
+  await Hive.openBox<User>('users');
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
 }
 
 class CountryDropdown extends StatefulWidget {
-  const CountryDropdown({Key? key}) : super(key: key);
+  const CountryDropdown({super.key});
 
   @override
   _CountryDropdownState createState() => _CountryDropdownState();
@@ -65,6 +65,8 @@ class _CountryDropdownState extends State<CountryDropdown> {
     print('Updating country details for $countryCode');
 
     Country? selectedCountry = Hive.box<Country>('countries').get(countryCode);
+    Military? selectedMilitary =
+        Hive.box<Military>('military').get(countryCode);
 
     if (selectedCountry != null) {
       setState(() {
@@ -73,6 +75,15 @@ class _CountryDropdownState extends State<CountryDropdown> {
           'GDP': selectedCountry.gdp.toString(),
           'Government': selectedCountry.governmentSystem,
         };
+        if (selectedMilitary != null) {
+          selectedCountryDetails.addAll({
+            'Infantry':
+                NumberFormat.decimalPattern().format(selectedMilitary.infantry),
+            'Tank': NumberFormat.decimalPattern().format(selectedMilitary.tank),
+            'Airforce':
+                NumberFormat.decimalPattern().format(selectedMilitary.airforce),
+          });
+        }
       });
     }
   }
@@ -91,9 +102,6 @@ class _CountryDropdownState extends State<CountryDropdown> {
   Widget build(BuildContext context) {
     final countryBox = Hive.box<Country>('countries');
     final countries = countryBox.values.toList();
-
-    // Sort the countries by name in ascending order
-    // countries.sort((a, b) => a.name.compareTo(b.name));
 
     if (countries.isEmpty) {
       return const Center(
@@ -143,8 +151,7 @@ class _CountryDropdownState extends State<CountryDropdown> {
             print('Selected country: $selectedCountry');
 
             final userBox = Hive.box<User>('users');
-            final user = User(
-                id: 1, countryCode: selectedCountry); // Assuming the id is 1
+            final user = User(id: 1, countryCode: selectedCountry);
             await userBox.put(user.id, user);
             print('user.id: ${user.id}');
             print('user.countryCode: ${user.countryCode}');

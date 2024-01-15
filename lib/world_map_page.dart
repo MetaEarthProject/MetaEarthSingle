@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:countries_world_map/countries_world_map.dart';
 import 'package:meta_earth_single_mode/bottom_navigation_bar.dart';
 import 'package:meta_earth_single_mode/country_controller.dart';
-import 'package:meta_earth_single_mode/country_model.dart';
+import 'package:meta_earth_single_mode/model/country_model.dart';
 import 'package:meta_earth_single_mode/data/maps/world_map.dart';
 
 class WorldMapPage extends StatefulWidget {
