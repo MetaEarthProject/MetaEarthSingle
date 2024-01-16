@@ -4,6 +4,7 @@ import 'package:meta_earth_single_mode/bottom_navigation_bar.dart';
 import 'package:meta_earth_single_mode/country_controller.dart';
 import 'package:meta_earth_single_mode/model/country_model.dart';
 import 'package:meta_earth_single_mode/data/maps/world_map.dart';
+import 'package:meta_earth_single_mode/model/country_relation_model.dart';
 import 'package:meta_earth_single_mode/reset_controller.dart';
 
 class WorldMapPage extends StatefulWidget {
@@ -17,6 +18,7 @@ class WorldMapPage extends StatefulWidget {
 
 class _WorldMapPageState extends State<WorldMapPage> {
   final countryController = CountryController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,7 @@ class _WorldMapPageState extends State<WorldMapPage> {
           countryColors[widget.selectedCountry.toLowerCase()] = Colors.green;
 
           return Scaffold(
+            key: _scaffoldKey,
             appBar: AppBar(
               title: const Text('World Map'),
               actions: <Widget>[
@@ -60,8 +63,14 @@ class _WorldMapPageState extends State<WorldMapPage> {
                       countryBorder:
                           const CountryBorder(color: Colors.black, width: .5),
                       colors: countryColors,
-                      callback: (id, name, tapDetails) {
-                        print(id);
+                      callback: (id, name, tapDetails) async {
+                        Country? country = await CountryController()
+                            .getCountryDetails(id.toUpperCase());
+                        if (country != null) {
+                          String countryName = country.name;
+                          print(countryName);
+                          _showDialog(countryName);
+                        }
                       },
                     ),
                   ),
@@ -72,6 +81,62 @@ class _WorldMapPageState extends State<WorldMapPage> {
                 BottomNavBar(selectedCountry: widget.selectedCountry),
           );
         }
+      },
+    );
+  }
+
+  void _showDialog(String countryName) {
+    print('Show dialog called with country: $countryName'); // Add this line
+    showDialog(
+      context: _scaffoldKey.currentContext!,
+      builder: (BuildContext context) {
+        return FutureBuilder<CountryRelation?>(
+          future: CountryRelation.getRelationByCountryCode(countryName),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              print(
+                  'Error fetching CountryRelation: ${snapshot.error}'); // Add this line
+              return Text('Error: ${snapshot.error}');
+            } else {
+              int relationship = snapshot.data?.relationship ?? 0;
+              print(
+                  'Fetched CountryRelation with relationship: $relationship'); // Add this line
+              return AlertDialog(
+                title: Text('Choose an action for $countryName'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      if (relationship == -1)
+                        GestureDetector(
+                          child: const Text("Attack"),
+                          onTap: () {
+                            // Add code here to handle the attack
+                          },
+                        ),
+                      if (relationship != -1)
+                        GestureDetector(
+                          child: const Text("Declare War"),
+                          onTap: () async {
+                            CountryRelation relation = CountryRelation(
+                              id: 0, // You might want to generate a unique ID here
+                              countryCode: countryName,
+                              relationship: -1, // Enemy
+                            );
+                            await CountryRelation.addRelation(relation);
+                            // You might want to check the relationship status here
+                            // And add the action to a queue if the relationship is 'enemy'
+                          },
+                        ),
+                      // Add more actions here
+                    ],
+                  ),
+                ),
+              );
+            }
+          },
+        );
       },
     );
   }

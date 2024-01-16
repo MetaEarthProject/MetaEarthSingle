@@ -21,7 +21,6 @@ class Country extends HiveObject {
   @HiveField(5)
   String governmentSystem;
 
-  // Additional
   Country({
     this.id,
     required this.code,

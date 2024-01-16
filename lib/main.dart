@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:intl/intl.dart';
 import 'package:meta_earth_single_mode/model/defense.dart';
+import 'package:meta_earth_single_mode/model/country_relation_model.dart';
 import '/model/country_model.dart';
 import '/model/user_model.dart';
 import 'country_controller.dart';
@@ -18,22 +19,22 @@ void main() async {
 }
 
 class HiveController {
+  static void registerTA<T extends HiveObject>(int id, TypeAdapter<T> adapter) {
+    if (!Hive.isAdapterRegistered(id)) {
+      Hive.registerAdapter<T>(adapter);
+    }
+  }
+
   static Future<void> initHive() async {
     final applicationDocumentsDirectory =
         await path_provider.getApplicationDocumentsDirectory();
     Hive.init(applicationDocumentsDirectory.path);
 
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(CountryAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(UserAdapter());
-    }
-    if (!Hive.isAdapterRegistered(2)) {
-      Hive.registerAdapter(MilitaryAdapter());
-    }
+    registerTA(0, CountryAdapter());
+    registerTA(1, UserAdapter());
+    registerTA(2, MilitaryAdapter());
+    registerTA(3, CountryRelationAdapter());
 
-    // Insert sample data
     final countryController = CountryController();
     await countryController.initDatabase();
 
