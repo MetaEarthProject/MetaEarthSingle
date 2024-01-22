@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:intl/intl.dart';
 import 'package:meta_earth_single_mode/model/defense.dart';
 import 'package:meta_earth_single_mode/model/country_relation_model.dart';
+import 'package:provider/provider.dart';
 import '/model/country_model.dart';
 import '/model/user_model.dart';
 import 'country_controller.dart';
@@ -15,7 +16,22 @@ void main() async {
   print('Initializing app');
 
   await HiveController.initHive();
-  runApp(const MyApp());
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => CountryProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CountryColorsNotifier(),
+        ),
+      ],
+      child: const MaterialApp(
+        home: WorldMapPage(selectedCountry: 'US'),
+      ),
+    ),
+  );
 }
 
 class HiveController {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:countries_world_map/countries_world_map.dart';
 import 'package:meta_earth_single_mode/bottom_navigation_bar.dart';
@@ -6,6 +7,20 @@ import 'package:meta_earth_single_mode/model/country_model.dart';
 import 'package:meta_earth_single_mode/data/maps/world_map.dart';
 import 'package:meta_earth_single_mode/model/country_relation_model.dart';
 import 'package:meta_earth_single_mode/reset_controller.dart';
+import 'package:provider/provider.dart';
+
+class CountryColorsNotifier extends ChangeNotifier {
+  final countryColorsNotifier = ValueNotifier<Map<String, Color>>({});
+
+  void updateCountryColors(Map<String, Color> countryColors) =>
+      countryColorsNotifier.value = countryColors;
+
+  @override
+  void dispose() {
+    countryColorsNotifier.dispose();
+    super.dispose();
+  }
+}
 
 class WorldMapPage extends StatefulWidget {
   final String selectedCountry;
@@ -18,91 +33,110 @@ class WorldMapPage extends StatefulWidget {
 
 class _WorldMapPageState extends State<WorldMapPage> {
   final countryController = CountryController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    countryController.getCountries().then((countries) {
+      Provider.of<CountryProvider>(context, listen: false)
+          .getCountryColors(countries, widget.selectedCountry)
+          .then((countryColors) {
+        Provider.of<CountryColorsNotifier>(context, listen: false)
+            .updateCountryColors(countryColors);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Country>>(
-      future: CountryController().getCountries(),
+      future: countryController.getCountries(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          Map<String, Color> countryColors = {
-            for (var country in snapshot.data!)
-              country.code.toLowerCase(): Colors.yellow
-          };
-          countryColors[widget.selectedCountry.toLowerCase()] = Colors.green;
-
-          return Scaffold(
-            key: _scaffoldKey,
-            appBar: AppBar(
-              title: const Text('World Map'),
-              actions: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.settings_backup_restore),
-                  onPressed: () => ResetController().showResetDialog(context),
-                ),
-              ],
-            ),
-            body: Stack(
-              children: [
-                // ignore: sized_box_for_whitespace
-                Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: InteractiveViewer(
-                    boundaryMargin: const EdgeInsets.all(20.0),
-                    minScale: 0.1,
-                    maxScale: 10.0,
-                    child: SimpleMap(
-                      instructions: SMapWorld.instructions,
-                      defaultColor: Colors.grey,
-                      countryBorder:
-                          const CountryBorder(color: Colors.black, width: .5),
-                      colors: countryColors,
-                      callback: (id, name, tapDetails) async {
-                        Country? country = await CountryController()
-                            .getCountryDetails(id.toUpperCase());
-                        if (country != null) {
-                          String countryName = country.name;
-                          print(countryName);
-                          _showDialog(countryName);
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            bottomNavigationBar:
-                BottomNavBar(selectedCountry: widget.selectedCountry),
+          return Consumer<CountryColorsNotifier>(
+            builder: (context, countryColorsNotifier, child) {
+              return ValueListenableBuilder<Map<String, Color>>(
+                valueListenable: countryColorsNotifier.countryColorsNotifier,
+                builder: (context, countryColors, child) {
+                  print('Colors passed to SimpleMap: $countryColors');
+                  if (countryColors.isEmpty) {
+                    return const CircularProgressIndicator();
+                  } else {
+                    return Scaffold(
+                      key: _scaffoldKey,
+                      appBar: AppBar(
+                        title: const Text('World Map'),
+                        actions: <Widget>[
+                          IconButton(
+                            icon: const Icon(Icons.settings_backup_restore),
+                            onPressed: () =>
+                                ResetController().showResetDialog(context),
+                          ),
+                        ],
+                      ),
+                      body: Stack(
+                        children: [
+                          Container(
+                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context).size.width,
+                            child: InteractiveViewer(
+                              boundaryMargin: const EdgeInsets.all(20.0),
+                              minScale: 0.1,
+                              maxScale: 10.0,
+                              child: SimpleMap(
+                                instructions: SMapWorld.instructions,
+                                defaultColor: Colors.grey,
+                                countryBorder: const CountryBorder(
+                                    color: Colors.black, width: .5),
+                                colors: countryColors,
+                                callback: (id, name, tapDetails) async {
+                                  final country = await countryController
+                                      .getCountryDetails(id.toUpperCase());
+                                  if (country != null) {
+                                    final countryName = country.name;
+                                    _showDialog(country, snapshot.data!);
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      bottomNavigationBar:
+                          BottomNavBar(selectedCountry: widget.selectedCountry),
+                    );
+                  }
+                },
+              );
+            },
           );
         }
       },
     );
   }
 
-  void _showDialog(String countryName) {
-    print('Show dialog called with country: $countryName'); // Add this line
+  void _showDialog(Country country, List<Country> countries) {
+    final countryName = country.name;
+    print('Show dialog called with country: $countryName');
     showDialog(
       context: _scaffoldKey.currentContext!,
       builder: (BuildContext context) {
-        return FutureBuilder<CountryRelation?>(
-          future: CountryRelation.getRelationByCountryCode(countryName),
+        return FutureBuilder<int?>(
+          future: CountryRelation.getRelationshipByCountryCode(country.code),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
             } else if (snapshot.hasError) {
-              print(
-                  'Error fetching CountryRelation: ${snapshot.error}'); // Add this line
+              print('Error fetching CountryRelation: ${snapshot.error}');
               return Text('Error: ${snapshot.error}');
             } else {
-              int relationship = snapshot.data?.relationship ?? 0;
-              print(
-                  'Fetched CountryRelation with relationship: $relationship'); // Add this line
+              final relationship = snapshot.data ?? 0;
+              print('Fetched CountryRelation with relationship: $relationship');
               return AlertDialog(
                 title: Text('Choose an action for $countryName'),
                 content: SingleChildScrollView(
@@ -118,15 +152,16 @@ class _WorldMapPageState extends State<WorldMapPage> {
                       if (relationship != -1)
                         GestureDetector(
                           child: const Text("Declare War"),
-                          onTap: () async {
-                            CountryRelation relation = CountryRelation(
-                              id: 0, // You might want to generate a unique ID here
-                              countryCode: countryName,
-                              relationship: -1, // Enemy
-                            );
-                            await CountryRelation.addRelation(relation);
-                            // You might want to check the relationship status here
-                            // And add the action to a queue if the relationship is 'enemy'
+                          onTap: () {
+                            final countryColorsNotifier =
+                                Provider.of<CountryColorsNotifier>(context,
+                                    listen: false);
+                            Provider.of<CountryProvider>(context, listen: false)
+                                .declareWar(countryColorsNotifier, countries,
+                                    widget.selectedCountry, country.code);
+
+                            Navigator.pop(context);
+                            setState(() {});
                           },
                         ),
                       // Add more actions here
@@ -139,5 +174,53 @@ class _WorldMapPageState extends State<WorldMapPage> {
         );
       },
     );
+  }
+}
+
+class CountryProvider extends ChangeNotifier {
+  final countryColors = <String, Color>{};
+
+  void updateCountryColor(String countryCode, Color color) {
+    countryColors[countryCode] = color;
+    print('Updated countryColors: $countryColors');
+    notifyListeners();
+  }
+
+  Future<void> declareWar(
+      CountryColorsNotifier countryColorsNotifier,
+      List<Country> countries,
+      String selectedCountry,
+      String countryCode) async {
+    var existingRelation = await CountryRelation.getRelation(countryCode);
+    if (existingRelation != null) {
+      existingRelation.relationship = -1; // Enemy
+      await CountryRelation.updateRelation(countryCode, existingRelation);
+    } else {
+      final newRelation = CountryRelation(
+        countryCode: countryCode,
+        relationship: -1, // Enemy
+      );
+      await CountryRelation.addRelation(newRelation);
+    }
+    updateCountryColor(countryCode, Colors.red);
+
+    final countryColors = await getCountryColors(countries, selectedCountry);
+    countryColorsNotifier.updateCountryColors(countryColors);
+  }
+
+  Future<Map<String, Color>> getCountryColors(
+      List<Country> countries, String selectedCountry) async {
+    final countryColors = <String, Color>{};
+    for (final country in countries) {
+      final relationship =
+          await CountryRelation.getRelationshipByCountryCode(country.code);
+      print(relationship);
+      countryColors[country.code.toLowerCase()] =
+          relationship != null && relationship == -1
+              ? Colors.red
+              : Colors.yellow;
+    }
+    countryColors[selectedCountry.toLowerCase()] = Colors.green;
+    return countryColors;
   }
 }

@@ -17,21 +17,18 @@ class CountryRelationAdapter extends TypeAdapter<CountryRelation> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return CountryRelation(
-      id: fields[0] as int,
-      countryCode: fields[1] as String,
-      relationship: fields[2] as int,
+      countryCode: fields[0] as String,
+      relationship: fields[1] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, CountryRelation obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.countryCode)
       ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.countryCode)
+      ..writeByte(1)
       ..write(obj.relationship);
   }
 

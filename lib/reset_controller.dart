@@ -1,6 +1,7 @@
 // reset_controller.dart
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:meta_earth_single_mode/model/country_relation_model.dart';
 import '/model/country_model.dart';
 import '/model/defense.dart';
 import '/model/user_model.dart';
@@ -20,6 +21,7 @@ class ResetController {
         Hive.box<Country>('countries').clear(),
         Hive.box<Military>('military').clear(),
         Hive.box<User>('users').clear(),
+        Hive.box<CountryRelation>(CountryRelation.boxName).clear(),
       ]);
 
       await CountryController().initDatabase();

@@ -1,20 +1,15 @@
 import 'package:hive/hive.dart';
-import 'package:collection/collection.dart';
-part 'country_relation_model.g.dart'; // Name of the TypeAdapter that will be generated
+part 'country_relation_model.g.dart';
 
 @HiveType(typeId: 3) // Unique identifier for this type
 class CountryRelation extends HiveObject {
   @HiveField(0)
-  int id;
-
-  @HiveField(1)
   String countryCode;
 
-  @HiveField(2)
+  @HiveField(1)
   int relationship;
 
   CountryRelation({
-    required this.id,
     required this.countryCode,
     this.relationship = 0,
   });
@@ -31,7 +26,7 @@ class CountryRelation extends HiveObject {
 
   static Future<void> addRelation(CountryRelation relation) async {
     var box = await _box;
-    await box.add(relation);
+    await box.put(relation.countryCode, relation);
   }
 
   static Future<List<CountryRelation>> getRelations() async {
@@ -39,25 +34,24 @@ class CountryRelation extends HiveObject {
     return box.values.toList();
   }
 
-  static Future<CountryRelation?> getRelation(int id) async {
+  static Future<CountryRelation?> getRelation(String countryCode) async {
     var box = await _box;
-    return box.get(id);
+    return box.get(countryCode);
   }
 
-  static Future<void> updateRelation(int id, CountryRelation relation) async {
+  static Future<void> updateRelation(
+      String countryCode, CountryRelation relation) async {
     var box = await _box;
-    await box.put(id, relation);
+    await box.put(countryCode, relation);
   }
 
-  static Future<void> deleteRelation(int id) async {
+  static Future<void> deleteRelation(String countryCode) async {
     var box = await _box;
-    await box.delete(id);
+    await box.delete(countryCode);
   }
 
-  static Future<CountryRelation?> getRelationByCountryCode(
-      String countryCode) async {
+  static Future<int?> getRelationshipByCountryCode(String countryCode) async {
     var box = await _box;
-    return box.values
-        .firstWhereOrNull((relation) => relation.countryCode == countryCode);
+    return box.get(countryCode)?.relationship;
   }
 }
