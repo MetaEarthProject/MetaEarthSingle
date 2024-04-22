@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:countries_world_map/countries_world_map.dart';
 import 'package:meta_earth_single_mode/bottom_navigation_bar.dart';
@@ -34,11 +35,21 @@ class WorldMapPage extends StatefulWidget {
 class _WorldMapPageState extends State<WorldMapPage> {
   final countryController = CountryController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  late Box<int> _gameTurnBox;
   int gameTurn = 1;
+
+  Future<void> _initHive() async {
+    await Hive.initFlutter();
+    _gameTurnBox = await Hive.openBox<int>('gameTurn');
+    setState(() {
+      gameTurn = _gameTurnBox.get('turn', defaultValue: 1)!;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _initHive();
     countryController.getCountries().then((countries) {
       Provider.of<CountryProvider>(context, listen: false)
           .getCountryColors(countries, widget.selectedCountry)

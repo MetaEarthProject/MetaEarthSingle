@@ -54,6 +54,7 @@ class HiveController {
     final countryController = CountryController();
     await countryController.initDatabase();
     await Hive.openBox<User>('users');
+    await Hive.openBox<int>('gameTurn');
   }
 }
 
