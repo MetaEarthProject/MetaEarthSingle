@@ -34,6 +34,7 @@ class WorldMapPage extends StatefulWidget {
 class _WorldMapPageState extends State<WorldMapPage> {
   final countryController = CountryController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  int gameTurn = 1;
 
   @override
   void initState() {
@@ -81,30 +82,50 @@ class _WorldMapPageState extends State<WorldMapPage> {
                       ),
                       body: Stack(
                         children: [
-                          Container(
-                            height: MediaQuery.of(context).size.height,
-                            width: MediaQuery.of(context).size.width,
-                            child: InteractiveViewer(
-                              boundaryMargin: const EdgeInsets.all(20.0),
-                              minScale: 0.1,
-                              maxScale: 10.0,
-                              child: SimpleMap(
-                                instructions: SMapWorld.instructions,
-                                defaultColor: Colors.grey,
-                                countryBorder: const CountryBorder(
-                                    color: Colors.black, width: .5),
-                                colors: countryColors,
-                                callback: (id, name, tapDetails) async {
-                                  final country = await countryController
-                                      .getCountryDetails(id.toUpperCase());
-                                  if (country != null) {
-                                    final countryName = country.name;
-                                    _showDialog(country, snapshot.data!);
-                                  }
-                                },
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Turn $gameTurn',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
+                            ],
                           ),
+                          Expanded(
+                            child: Stack(
+                              children: [
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: InteractiveViewer(
+                                    boundaryMargin: const EdgeInsets.all(20.0),
+                                    minScale: 0.1,
+                                    maxScale: 10.0,
+                                    child: SimpleMap(
+                                      instructions: SMapWorld.instructions,
+                                      defaultColor: Colors.grey,
+                                      countryBorder: const CountryBorder(
+                                          color: Colors.black, width: .5),
+                                      colors: countryColors,
+                                      callback: (id, name, tapDetails) async {
+                                        final country = await countryController
+                                            .getCountryDetails(
+                                                id.toUpperCase());
+                                        if (country != null) {
+                                          final countryName = country.name;
+                                          _showDialog(country, snapshot.data!);
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
                         ],
                       ),
                       bottomNavigationBar:
