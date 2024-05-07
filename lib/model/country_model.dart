@@ -21,6 +21,18 @@ class Country extends HiveObject {
   @HiveField(5)
   String governmentSystem;
 
+  @HiveField(6)
+  int stateBudget;
+
+  @HiveField(7)
+  double unemploymentRate;
+
+  @HiveField(8)
+  double interestRate;
+
+  @HiveField(9)
+  double inflationRate;
+
   Country({
     this.id,
     required this.code,
@@ -28,5 +40,9 @@ class Country extends HiveObject {
     required this.population,
     required this.gdp,
     required this.governmentSystem,
+    required this.stateBudget,
+    required this.unemploymentRate,
+    required this.interestRate,
+    required this.inflationRate,
   });
 }

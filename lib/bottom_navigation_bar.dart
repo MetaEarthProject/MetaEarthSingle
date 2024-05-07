@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meta_earth_single_mode/overview.dart';
+import 'package:meta_earth_single_mode/economy_page.dart';
 
 class BottomNavBar extends StatelessWidget {
   final String selectedCountry;
 
-  const BottomNavBar({Key? key, required this.selectedCountry})
-      : super(key: key);
+  const BottomNavBar({super.key, required this.selectedCountry});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,14 @@ class BottomNavBar extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.paid_outlined),
                   iconSize: 30.0,
-                  onPressed: () {},
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              EconomyPage(selectedCountry: selectedCountry)),
+                    );
+                  },
                 ),
                 const Text('ECONOMY'),
               ],

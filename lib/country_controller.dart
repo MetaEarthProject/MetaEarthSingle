@@ -24,6 +24,10 @@ class CountryController {
         population: 331002651,
         gdp: 21433225,
         governmentSystem: 'Federal Republic',
+        stateBudget: 2865000000000,
+        unemploymentRate: 4.7,
+        interestRate: 5.25,
+        inflationRate: 2.5,
       ),
       Country(
         code: 'CN',
@@ -31,6 +35,10 @@ class CountryController {
         population: 1444216107,
         gdp: 16978624,
         governmentSystem: 'Single-Party Socialist Republic',
+        stateBudget: 4000000000000,
+        unemploymentRate: 5.2,
+        interestRate: 3.45,
+        inflationRate: 1.5,
       ),
       Country(
         code: 'JP',
@@ -38,6 +46,10 @@ class CountryController {
         population: 126476461,
         gdp: 5501000,
         governmentSystem: 'Constitutional Monarchy',
+        stateBudget: 11438000000000,
+        unemploymentRate: 2.5,
+        interestRate: 0.1,
+        inflationRate: 0.5, // Placeholder for Japan's inflation rate in 2023
       ),
       Country(
         code: 'DE',
@@ -45,6 +57,10 @@ class CountryController {
         population: 83783942,
         gdp: 4470617,
         governmentSystem: 'Federal Republic',
+        stateBudget: 476300000000,
+        unemploymentRate: 5.7,
+        interestRate: 2.35,
+        inflationRate: 1.8, // Placeholder for Germany's inflation rate in 2023
       ),
       Country(
         code: 'FR',
@@ -52,6 +68,10 @@ class CountryController {
         population: 65273511,
         gdp: 3038242,
         governmentSystem: 'Semi-Presidential Republic',
+        stateBudget: 785000000000,
+        unemploymentRate: 7.5,
+        interestRate: 2.85,
+        inflationRate: 1.6, // Placeholder for France's inflation rate in 2023
       ),
       Country(
         code: 'IN',
@@ -59,6 +79,10 @@ class CountryController {
         population: 1393409038,
         gdp: 2875145,
         governmentSystem: 'Federal Parliamentary Democratic Republic',
+        stateBudget: 27927900000000,
+        unemploymentRate: 3.1,
+        interestRate: 6.5,
+        inflationRate: 4.5, // Placeholder for India's inflation rate in 2023
       ),
       Country(
         code: 'GB',
@@ -66,6 +90,10 @@ class CountryController {
         population: 67886011,
         gdp: 2848276,
         governmentSystem: 'Constitutional Monarchy',
+        stateBudget: 1189000000000,
+        unemploymentRate: 3.8,
+        interestRate: 5.25,
+        inflationRate: 2.0, // Placeholder for UK's inflation rate in 2023
       ),
       Country(
         code: 'IT',
@@ -73,6 +101,10 @@ class CountryController {
         population: 60461826,
         gdp: 2070371,
         governmentSystem: 'Parliamentary Republic',
+        stateBudget: 35000000000,
+        unemploymentRate: 8.7,
+        interestRate: 5.0,
+        inflationRate: 1.3, // Placeholder for Italy's inflation rate in 2023
       ),
       Country(
         code: 'CA',
@@ -80,13 +112,10 @@ class CountryController {
         population: 37742154,
         gdp: 1908475,
         governmentSystem: 'Federal Parliamentary Democracy',
-      ),
-      Country(
-        code: 'BR',
-        name: 'Brazil',
-        population: 212559417,
-        gdp: 1839887,
-        governmentSystem: 'Federal Republic',
+        stateBudget: 35000000000,
+        unemploymentRate: 4.2,
+        interestRate: 5.25,
+        inflationRate: 3.0, // Placeholder for Canada's inflation rate in 2023
       ),
       Country(
         code: 'KR',
@@ -94,6 +123,11 @@ class CountryController {
         population: 51269185,
         gdp: 1693207,
         governmentSystem: 'Unitary Presidential Republic',
+        stateBudget: 558200000000000,
+        unemploymentRate: 3.2,
+        interestRate: 2.5,
+        inflationRate:
+            1.7, // Placeholder for South Korea's inflation rate in 2023
       ),
     ];
 
