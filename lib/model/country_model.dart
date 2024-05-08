@@ -33,6 +33,9 @@ class Country extends HiveObject {
   @HiveField(9)
   double inflationRate;
 
+  @HiveField(10)
+  double taxRate;
+
   Country({
     this.id,
     required this.code,
@@ -44,5 +47,6 @@ class Country extends HiveObject {
     required this.unemploymentRate,
     required this.interestRate,
     required this.inflationRate,
+    required this.taxRate,
   });
 }

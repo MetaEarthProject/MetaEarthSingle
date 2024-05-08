@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import '/model/country_model.dart';
 import 'package:intl/intl.dart';
+import '/model/country_model.dart';
 
 class EconomyPage extends StatefulWidget {
   final String selectedCountry;
@@ -17,13 +17,16 @@ class _EconomyPageState extends State<EconomyPage> {
   late final Box<Country> countryBox;
   Country? country; // Nullable
   late double interestRate;
-  double taxRate = 20.0;
+  late double taxRate;
   TextEditingController housesController = TextEditingController();
   TextEditingController factoriesController = TextEditingController();
   TextEditingController schoolsController = TextEditingController();
   int houses = 0;
   int factories = 0;
   int schools = 0;
+
+  bool isDecreasingTaxRate = false;
+  bool isIncreasingTaxRate = false;
 
   @override
   void initState() {
@@ -47,7 +50,7 @@ class _EconomyPageState extends State<EconomyPage> {
     super.didChangeDependencies();
     if (country != null) {
       interestRate = country!.interestRate;
-      taxRate = 20.0; //country!.taxRate;
+      taxRate = country!.taxRate;
     } else {
       interestRate = 0.0; // Set a default value if country is null
       taxRate = 0.0;
@@ -60,10 +63,52 @@ class _EconomyPageState extends State<EconomyPage> {
     });
   }
 
-  void adjustTaxRate(double adjustment) {
+  void startDecreasingTaxRate() {
     setState(() {
-      if (taxRate + adjustment >= 0) taxRate += adjustment;
+      isDecreasingTaxRate = true;
     });
+    _decreaseTaxRate();
+  }
+
+  void stopDecreasingTaxRate() {
+    setState(() {
+      isDecreasingTaxRate = false;
+    });
+  }
+
+  void _decreaseTaxRate() {
+    if (isDecreasingTaxRate) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        setState(() {
+          if (taxRate - 0.1 >= 0) taxRate -= 0.1;
+        });
+        _decreaseTaxRate();
+      });
+    }
+  }
+
+  void startIncreasingTaxRate() {
+    setState(() {
+      isIncreasingTaxRate = true;
+    });
+    _increaseTaxRate();
+  }
+
+  void stopIncreasingTaxRate() {
+    setState(() {
+      isIncreasingTaxRate = false;
+    });
+  }
+
+  void _increaseTaxRate() {
+    if (isIncreasingTaxRate) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        setState(() {
+          taxRate += 0.1;
+        });
+        _increaseTaxRate();
+      });
+    }
   }
 
   @override
@@ -91,19 +136,20 @@ class _EconomyPageState extends State<EconomyPage> {
                       DataRow(cells: [
                         const DataCell(Text('State Budget')),
                         DataCell(Text(NumberFormat('#,###')
-                            .format(country?.stateBudget))),
+                            .format(country?.stateBudget ?? 0))),
                       ]),
                       DataRow(cells: [
                         const DataCell(Text('Unemployment Rate')),
-                        DataCell(Text('${country?.unemploymentRate}%')),
+                        DataCell(Text('${country?.unemploymentRate ?? 0}%')),
                       ]),
                       DataRow(cells: [
                         const DataCell(Text('Population')),
-                        DataCell(Text('${country?.population}')),
+                        DataCell(Text(NumberFormat('#,###')
+                            .format(country?.population ?? 0))),
                       ]),
                       DataRow(cells: [
                         const DataCell(Text('Inflation Rate')),
-                        DataCell(Text('${country?.inflationRate}%')),
+                        DataCell(Text('${country?.inflationRate ?? 0}%')),
                       ]),
                       DataRow(cells: [
                         const DataCell(Text('Interest Rate')),
@@ -135,7 +181,8 @@ class _EconomyPageState extends State<EconomyPage> {
                               ),
                               const SizedBox(width: 8),
                               SizedBox(
-                                width: 50,
+                                width:
+                                    100, // Adjusted width to accommodate the TextField and button
                                 child: TextField(
                                   controller: housesController,
                                   keyboardType: TextInputType.number,
@@ -153,16 +200,8 @@ class _EconomyPageState extends State<EconomyPage> {
                         DataCell(
                           Row(
                             children: [
-                              SizedBox(
-                                width: 120,
-                                child: TextField(
-                                  controller: factoriesController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Enter quantity',
-                                  ),
-                                ),
-                              ),
+                              Text('$factories'),
+                              const SizedBox(width: 16),
                               ElevatedButton(
                                 onPressed: () {
                                   setState(() {
@@ -177,7 +216,17 @@ class _EconomyPageState extends State<EconomyPage> {
                                 child: Text('Build'),
                               ),
                               const SizedBox(width: 8),
-                              Text('Current: $factories'),
+                              SizedBox(
+                                width:
+                                    100, // Adjusted width to accommodate the TextField and button
+                                child: TextField(
+                                  controller: factoriesController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter quantity',
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -187,16 +236,8 @@ class _EconomyPageState extends State<EconomyPage> {
                         DataCell(
                           Row(
                             children: [
-                              SizedBox(
-                                width: 120,
-                                child: TextField(
-                                  controller: schoolsController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Enter quantity',
-                                  ),
-                                ),
-                              ),
+                              Text('$schools'),
+                              const SizedBox(width: 16),
                               ElevatedButton(
                                 onPressed: () {
                                   setState(() {
@@ -211,7 +252,17 @@ class _EconomyPageState extends State<EconomyPage> {
                                 child: Text('Build'),
                               ),
                               const SizedBox(width: 8),
-                              Text('Current: $schools'),
+                              SizedBox(
+                                width:
+                                    100, // Adjusted width to accommodate the TextField and button
+                                child: TextField(
+                                  controller: schoolsController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter quantity',
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -221,16 +272,16 @@ class _EconomyPageState extends State<EconomyPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-                      Expanded(
+                      Flexible(
                         flex: 3,
                         child: ElevatedButton(
-                          child: const Text('-0.25%'),
                           onPressed: () {
                             adjustInterestRate(-0.25);
                           },
+                          child: const Text('-0.25%'),
                         ),
                       ),
-                      Expanded(
+                      Flexible(
                         flex: 4,
                         child: Container(
                           alignment: Alignment.center,
@@ -257,13 +308,13 @@ class _EconomyPageState extends State<EconomyPage> {
                           ),
                         ),
                       ),
-                      Expanded(
+                      Flexible(
                         flex: 3,
                         child: ElevatedButton(
-                          child: const Text('+0.25%'),
                           onPressed: () {
                             adjustInterestRate(0.25);
                           },
+                          child: const Text('+0.25%'),
                         ),
                       ),
                     ],
@@ -271,17 +322,7 @@ class _EconomyPageState extends State<EconomyPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-                      Expanded(
-                        flex: 3,
-                        child: ElevatedButton(
-                          child: const Text('-0.25%'),
-                          onPressed: () {
-                            adjustTaxRate(-0.25);
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        flex: 4,
+                      Flexible(
                         child: Container(
                           alignment: Alignment.center,
                           child: RichText(
@@ -307,13 +348,36 @@ class _EconomyPageState extends State<EconomyPage> {
                           ),
                         ),
                       ),
-                      Expanded(
-                        flex: 3,
-                        child: ElevatedButton(
-                          child: const Text('+0.25%'),
-                          onPressed: () {
-                            adjustTaxRate(0.25);
+                      Flexible(
+                        child: GestureDetector(
+                          onTapDown: (_) {
+                            startDecreasingTaxRate();
                           },
+                          onTapUp: (_) {
+                            stopDecreasingTaxRate();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            color: Colors.blue,
+                            child: const Text('-0.1%',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        child: GestureDetector(
+                          onTapDown: (_) {
+                            startIncreasingTaxRate();
+                          },
+                          onTapUp: (_) {
+                            stopIncreasingTaxRate();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            color: Colors.blue,
+                            child: const Text('+0.1%',
+                                style: TextStyle(color: Colors.white)),
+                          ),
                         ),
                       ),
                     ],

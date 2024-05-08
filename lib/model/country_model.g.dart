@@ -27,13 +27,14 @@ class CountryAdapter extends TypeAdapter<Country> {
       unemploymentRate: fields[7] as double,
       interestRate: fields[8] as double,
       inflationRate: fields[9] as double,
+      taxRate: fields[10] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, Country obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class CountryAdapter extends TypeAdapter<Country> {
       ..writeByte(8)
       ..write(obj.interestRate)
       ..writeByte(9)
-      ..write(obj.inflationRate);
+      ..write(obj.inflationRate)
+      ..writeByte(10)
+      ..write(obj.taxRate);
   }
 
   @override

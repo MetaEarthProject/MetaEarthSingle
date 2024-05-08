@@ -28,6 +28,7 @@ class CountryController {
         unemploymentRate: 4.7,
         interestRate: 5.25,
         inflationRate: 2.5,
+        taxRate: 24.2,
       ),
       Country(
         code: 'CN',
@@ -39,6 +40,7 @@ class CountryController {
         unemploymentRate: 5.2,
         interestRate: 3.45,
         inflationRate: 1.5,
+        taxRate: 21.1,
       ),
       Country(
         code: 'JP',
@@ -49,7 +51,8 @@ class CountryController {
         stateBudget: 11438000000000,
         unemploymentRate: 2.5,
         interestRate: 0.1,
-        inflationRate: 0.5, // Placeholder for Japan's inflation rate in 2023
+        inflationRate: 0.5,
+        taxRate: 30.8,
       ),
       Country(
         code: 'DE',
@@ -60,7 +63,8 @@ class CountryController {
         stateBudget: 476300000000,
         unemploymentRate: 5.7,
         interestRate: 2.35,
-        inflationRate: 1.8, // Placeholder for Germany's inflation rate in 2023
+        inflationRate: 1.8,
+        taxRate: 27.1,
       ),
       Country(
         code: 'FR',
@@ -71,7 +75,8 @@ class CountryController {
         stateBudget: 785000000000,
         unemploymentRate: 7.5,
         interestRate: 2.85,
-        inflationRate: 1.6, // Placeholder for France's inflation rate in 2023
+        inflationRate: 1.6,
+        taxRate: 23.0,
       ),
       Country(
         code: 'IN',
@@ -82,7 +87,8 @@ class CountryController {
         stateBudget: 27927900000000,
         unemploymentRate: 3.1,
         interestRate: 6.5,
-        inflationRate: 4.5, // Placeholder for India's inflation rate in 2023
+        inflationRate: 4.5,
+        taxRate: 15.4,
       ),
       Country(
         code: 'GB',
@@ -93,7 +99,8 @@ class CountryController {
         stateBudget: 1189000000000,
         unemploymentRate: 3.8,
         interestRate: 5.25,
-        inflationRate: 2.0, // Placeholder for UK's inflation rate in 2023
+        inflationRate: 2.0,
+        taxRate: 28.2,
       ),
       Country(
         code: 'IT',
@@ -104,7 +111,8 @@ class CountryController {
         stateBudget: 35000000000,
         unemploymentRate: 8.7,
         interestRate: 5.0,
-        inflationRate: 1.3, // Placeholder for Italy's inflation rate in 2023
+        inflationRate: 1.3,
+        taxRate: 23.9,
       ),
       Country(
         code: 'CA',
@@ -115,7 +123,8 @@ class CountryController {
         stateBudget: 35000000000,
         unemploymentRate: 4.2,
         interestRate: 5.25,
-        inflationRate: 3.0, // Placeholder for Canada's inflation rate in 2023
+        inflationRate: 3.0,
+        taxRate: 26.8,
       ),
       Country(
         code: 'KR',
@@ -126,8 +135,8 @@ class CountryController {
         stateBudget: 558200000000000,
         unemploymentRate: 3.2,
         interestRate: 2.5,
-        inflationRate:
-            1.7, // Placeholder for South Korea's inflation rate in 2023
+        inflationRate: 1.7,
+        taxRate: 28.5,
       ),
     ];
 
